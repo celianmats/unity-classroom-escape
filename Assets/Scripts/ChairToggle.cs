@@ -3,6 +3,8 @@ using UnityEngine;
 public class ChairToggle : MonoBehaviour
 {
     [Header("Settings")]
+    [Tooltip("L'identifiant unique de cette chaise (ex: 1, 2, ..., 12).")]
+    public int chairID;
     [Tooltip("La distance de translation sur l'axe X quand la chaise est ouverte.")]
     public float translationX = -0.3f;
     [Tooltip("La vitesse de la translation.")]
@@ -36,5 +38,11 @@ public class ChairToggle : MonoBehaviour
     public void Toggle()
     {
         estOuverte = !estOuverte;
+
+        // Lors du clic, informer le gestionnaire du changement d'état
+        if (ChairPatternManager.Instance != null)
+        {
+            ChairPatternManager.Instance.UpdateChairState(chairID, estOuverte);
+        }
     }
 }
