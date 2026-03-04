@@ -8,6 +8,8 @@ public class PlayerInteraction : MonoBehaviour
     public float distanceInteraction = 3.0f;
     [Tooltip("Le tag des objets interactifs comme la chaise.")]
     public string tagChaise = "SchoolChair";
+    [Tooltip("Le tag des objets interactifs comme le tiroir.")]
+    public string tagTiroir = "Drawer";
 
     [Header("UI - Pointeur / Curseur")]
     [Tooltip("L'image UI du réticule au centre de l'écran (ex: le point rouge).")]
@@ -37,15 +39,15 @@ public class PlayerInteraction : MonoBehaviour
         Ray ray = cameraJoueur.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
 
-        bool survoleChaise = false;
+        bool survoleInteractable = false;
 
         // On projette un rayon pour voir ce que le joueur regarde
         if (Physics.Raycast(ray, out hit, distanceInteraction))
         {
-            // Vérifier si l'objet regardé a le bon tag
+            // Vérifier si l'objet regardé est une chaise
             if (hit.collider.CompareTag(tagChaise))
             {
-                survoleChaise = true;
+                survoleInteractable = true;
 
                 // Vérifier le clic gauche de la souris (Bouton Fire1 / 0)
                 if (Input.GetMouseButtonDown(0))
@@ -58,13 +60,27 @@ public class PlayerInteraction : MonoBehaviour
                     }
                 }
             }
+            // Vérifier si l'objet regardé est un tiroir
+            else if (hit.collider.CompareTag(tagTiroir))
+            {
+                survoleInteractable = true;
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    DrawerToggle tiroir = hit.collider.GetComponent<DrawerToggle>();
+                    if (tiroir != null)
+                    {
+                        tiroir.Toggle();
+                    }
+                }
+            }
         }
 
         // Mettre à jour la couleur du pointeur
         if (crosshair != null)
         {
-            // Si on survole une chaise, on met la couleurSurvol, sinon la couleurNormale
-            crosshair.color = survoleChaise ? couleurSurvol : couleurNormale;
+            // Si on survole un interactable, on met la couleurSurvol, sinon la couleurNormale
+            crosshair.color = survoleInteractable ? couleurSurvol : couleurNormale;
         }
     }
 }
