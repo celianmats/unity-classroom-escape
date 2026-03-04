@@ -23,9 +23,6 @@ public class ChairPatternManager : MonoBehaviour
 
     // Un dictionnaire pour garder une trace de l'état actuel de chaque chaise pendant le jeu
     private Dictionary<int, bool> etatActuelChaises = new Dictionary<int, bool>();
-    
-    // Pour ne pas re-déclencher le son à chaque fois qu'on clique sur une chaise une fois le puzzle résolu
-    private bool estResolu = false;
 
     private void Awake()
     {
@@ -42,7 +39,7 @@ public class ChairPatternManager : MonoBehaviour
 
     private void Start()
     {
-        // Initialiser toutes les chaises à l'état "fermé" (false) par défaut au début
+        // Initialiser toutes les chaises à l'état "fermé" par défaut au début
         foreach (var chairData in patternAttendu)
         {
             etatActuelChaises[chairData.chairID] = false; 
@@ -71,9 +68,6 @@ public class ChairPatternManager : MonoBehaviour
     /// </summary>
     private void CheckPattern()
     {
-        // Si le puzzle est déjà résolu, on ne fait plus rien
-        if (estResolu) return;
-
         bool patternCorrect = true;
 
         foreach (var condition in patternAttendu)
@@ -83,15 +77,13 @@ public class ChairPatternManager : MonoBehaviour
                 etatActuelChaises[condition.chairID] != condition.isCorrectStateOpen)
             {
                 patternCorrect = false;
-                break; // Plus besoin de vérifier les autres, c'est faux
+                break; 
             }
         }
 
         if (patternCorrect)
         {
-            estResolu = true; // Empêche de relancer l'audio si on reclique sur une chaise plus tard
-
-            // Le bon pattern a été trouvé !
+            // Bon pattern trouvé
             if (sonReussite != null)
             {
                 sonReussite.Play();
