@@ -2962,9 +2962,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::RemoteController
   isOn: 0
-  audioSource: {fileID: 0}
-  powerOnSound: {fileID: 0}
-  powerOffSound: {fileID: 0}
+  audioSource: {fileID: 802133961}
+  powerOnSound: {fileID: 8300000, guid: 15b4985fbeb42456a947b108a86ca84e, type: 3}
+  powerOffSound: {fileID: 8300000, guid: eec910d9884304a89b0d9408cada60ea, type: 3}
+  loopSoundAudioSource: {fileID: 802133961}
+  loopSound: {fileID: 8300000, guid: c93d3c854ce2745f0b90ba48e47ee0a8, type: 3}
+  delaiSonBoucle: 1
   targetRenderer: {fileID: 802133957}
   imageTemporaire: {fileID: 2800000, guid: 9502a1e9fef6e4c44ba3d871dd9f6077, type: 3}
   imageDefinitive: {fileID: 2800000, guid: 8dd25cccbac7843bf998b23cf0a1f910, type: 3}
