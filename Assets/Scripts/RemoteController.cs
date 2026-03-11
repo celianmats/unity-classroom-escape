@@ -7,6 +7,9 @@ public class RemoteController : MonoBehaviour
     [Tooltip("Définit si la télécommande est allumée ou éteinte.")]
     public bool isOn = false;
 
+    // Static flag so it's easily accessible without finding the object
+    public static bool hasBeenTurnedOnAtLeastOnce = false;
+
     [Header("Audio - Sons ponctuels")]
     [Tooltip("La source audio qui jouera le bip/son d'allumage/extinction")]
     public AudioSource audioSource;
@@ -22,6 +25,8 @@ public class RemoteController : MonoBehaviour
     public AudioClip loopSound;
     [Tooltip("Délai (en secondes) avant le lancement du son de boucle après l'allumage. 0 = la durée du son d'allumage.")]
     public float delaiSonBoucle = 0f;
+    [Tooltip("Durée (en secondes) du fondu d'extinction du son en boucle. 0 = la durée du son d'extinction.")]
+    public float dureeFonduSon = 0f;
 
     [Header("Références d'affichage")]
     [Tooltip("L'objet qui affichera l'image (doit posséder un MeshRenderer et un matériel avec un Shader transparent)")]
@@ -39,16 +44,26 @@ public class RemoteController : MonoBehaviour
 
     private Coroutine sequenceCoroutine;
     private Coroutine loopSoundCoroutine;
+    private Coroutine fadeOutSoundCoroutine;
     private bool isTransitioning = false; // Empêche d'éteindre pendant l'animation
+    private float originalLoopVolume = 1f;
 
     // Propriété publique pour savoir si une transition est en cours (utile pour PlayerInteraction.cs)
     public bool IsTransitioning { get { return isTransitioning; } }
 
     void Start()
     {
+        // On s'assure que la mémoire est bien remise à 0 au lancement du jeu (utile dans l'éditeur Unity)
+        hasBeenTurnedOnAtLeastOnce = false;
+
         // Par défaut la télécommande est éteinte
         isOn = false;
         
+        if (loopSoundAudioSource != null)
+        {
+            originalLoopVolume = loopSoundAudioSource.volume;
+        }
+
         if (targetRenderer != null)
         {
             // Rendre l'image transparente au départ et retirer la texture
@@ -67,6 +82,11 @@ public class RemoteController : MonoBehaviour
         if (isTransitioning) return;
 
         isOn = !isOn; // Inverse le statut
+
+        if (isOn)
+        {
+            hasBeenTurnedOnAtLeastOnce = true;
+        }
 
         // Jouer le son correspondant au nouveau statut (Bip)
         if (audioSource != null)
@@ -94,16 +114,22 @@ public class RemoteController : MonoBehaviour
             {
                 StopCoroutine(loopSoundCoroutine);
             }
+            if (fadeOutSoundCoroutine != null)
+            {
+                StopCoroutine(fadeOutSoundCoroutine);
+            }
 
             if (isOn)
             {
+                // On restaure le volume d'origine au cas où il aurait été baissé par un fondu précédent
+                loopSoundAudioSource.volume = originalLoopVolume;
                 // On lance la coroutine pour le délai du son de boucle
                 loopSoundCoroutine = StartCoroutine(DemarrerSonBoucleAvecDelai());
             }
             else
             {
-                // Quand on éteint, on coupe net le son de boucle
-                loopSoundAudioSource.Stop();
+                // Quand on éteint, on lance le fondu du son en boucle
+                fadeOutSoundCoroutine = StartCoroutine(EteindreSonBoucleEnFondu());
             }
         }
 
@@ -170,6 +196,37 @@ public class RemoteController : MonoBehaviour
         {
             loopSoundAudioSource.Play();
         }
+    }
+
+    private IEnumerator EteindreSonBoucleEnFondu()
+    {
+        if (loopSoundAudioSource == null) yield break;
+
+        // On calcule la durée du fondu
+        float fadeTime = dureeFonduSon;
+        
+        // Si dureeFonduSon est à 0 et qu'on a un son d'extinction, on se cale sur sa durée
+        if (fadeTime <= 0f && powerOffSound != null)
+        {
+            fadeTime = powerOffSound.length;
+        }
+        
+        // Sécurité si on n'a ni l'un ni l'autre, on coupe directement + un petit fondu par défaut de 0.5s
+        if (fadeTime <= 0f) fadeTime = 0.5f;
+
+        float startVolume = loopSoundAudioSource.volume;
+        float elapsedTime = 0f;
+
+        while (elapsedTime < fadeTime)
+        {
+            elapsedTime += Time.deltaTime;
+            loopSoundAudioSource.volume = Mathf.Lerp(startVolume, 0f, elapsedTime / fadeTime);
+            yield return null;
+        }
+
+        loopSoundAudioSource.volume = 0f;
+        loopSoundAudioSource.Stop();
+        loopSoundAudioSource.volume = originalLoopVolume; // On remet le volume pour le prochain allumage
     }
 
     private void Eteindre()

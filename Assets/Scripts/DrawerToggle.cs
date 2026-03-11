@@ -8,6 +8,14 @@ public class DrawerToggle : MonoBehaviour
     [Tooltip("La vitesse de la translation.")]
     public float vitesseTranslation = 5.0f;
 
+    [Header("Audio")]
+    [Tooltip("La source audio attachée à ce tiroir.")]
+    public AudioSource audioSource;
+    [Tooltip("Le son joué quand le tiroir s'ouvre.")]
+    public AudioClip openSound;
+    [Tooltip("Le son joué quand le tiroir se ferme.")]
+    public AudioClip closeSound;
+
     private bool estOuvert = false;
     private Vector3 positionOrigine;
     private Vector3 positionOuverte;
@@ -36,5 +44,18 @@ public class DrawerToggle : MonoBehaviour
     public void Toggle()
     {
         estOuvert = !estOuvert;
+
+        // Jouer le son correspondant
+        if (audioSource != null)
+        {
+            if (estOuvert && openSound != null)
+            {
+                audioSource.PlayOneShot(openSound);
+            }
+            else if (!estOuvert && closeSound != null)
+            {
+                audioSource.PlayOneShot(closeSound);
+            }
+        }
     }
 }

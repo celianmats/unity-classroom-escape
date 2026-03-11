@@ -20,9 +20,13 @@ public class ChairPatternManager : MonoBehaviour
     [Header("Récompense / Feedback")]
     [Tooltip("Le composant AudioSource qui jouera le son de victoire (ex: bruit de mécanisme ou verrou).")]
     public AudioSource sonReussite;
+    [Tooltip("Délai en secondes avant que le son ne se joue après la réussite.")]
+    public float delaiSonReussite = 0.5f;
 
     // Un dictionnaire pour garder une trace de l'état actuel de chaque chaise pendant le jeu
     private Dictionary<int, bool> etatActuelChaises = new Dictionary<int, bool>();
+    private bool canPlaySuccessSound = true; // Cooldown pour éviter de spammer le son
+    private Coroutine successSoundCoroutine;
 
     private void Awake()
     {
@@ -83,15 +87,40 @@ public class ChairPatternManager : MonoBehaviour
 
         if (patternCorrect)
         {
-            // Bon pattern trouvé
-            if (sonReussite != null)
+            // Bon pattern trouvé, mais on vérifie si la télécommande a déjà été allumée au moins une fois
+            if (RemoteController.hasBeenTurnedOnAtLeastOnce)
             {
-                sonReussite.Play();
-            }
-            else
-            {
-                Debug.LogWarning("Le pattern est correct, mais aucun AudioSource n'est assigné dans le Pattern Manager !");
+                if (sonReussite != null && canPlaySuccessSound)
+                {
+                    // Si on relance alors qu'une ancienne attente tournait encore, on la stoppe
+                    if (successSoundCoroutine != null)
+                    {
+                        StopCoroutine(successSoundCoroutine);
+                    }
+                    successSoundCoroutine = StartCoroutine(PlaySuccessSoundWithDelay());
+                }
             }
         }
+    }
+
+    private System.Collections.IEnumerator PlaySuccessSoundWithDelay()
+    {
+        // On bloque immédiatement la possibilité de rejouer le son
+        canPlaySuccessSound = false;
+
+        // On attend le petit délai demandé
+        if (delaiSonReussite > 0f)
+        {
+            yield return new WaitForSeconds(delaiSonReussite);
+        }
+
+        // On joue le son de réussite
+        sonReussite.Play();
+
+        // On attend que le son se termine complètement pour servir de cooldown
+        yield return new WaitForSeconds(sonReussite.clip != null ? sonReussite.clip.length : 1f);
+
+        // Une fois terminé, on autorise à nouveau la lecture si le joueur refait le pattern plus tard
+        canPlaySuccessSound = true;
     }
 }

@@ -10,6 +10,12 @@ public class ChairToggle : MonoBehaviour
     [Tooltip("La vitesse de la translation.")]
     public float vitesseTranslation = 5.0f;
 
+    [Header("Audio")]
+    [Tooltip("La source audio attachée à cette chaise.")]
+    public AudioSource audioSource;
+    [Tooltip("Le son joué quand la chaise s'ouvre ou se ferme.")]
+    public AudioClip toggleSound;
+
     private bool estOuverte = false;
     private Vector3 positionOrigine;
     private Vector3 positionOuverte;
@@ -38,6 +44,12 @@ public class ChairToggle : MonoBehaviour
     public void Toggle()
     {
         estOuverte = !estOuverte;
+
+        // Jouer le son de la chaise
+        if (audioSource != null && toggleSound != null)
+        {
+            audioSource.PlayOneShot(toggleSound);
+        }
 
         // Lors du clic, informer le gestionnaire du changement d'état
         if (ChairPatternManager.Instance != null)
