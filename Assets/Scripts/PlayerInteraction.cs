@@ -79,12 +79,14 @@ public class PlayerInteraction : MonoBehaviour
             // Vérifier si l'objet regardé est la télécommande
             else if (hit.collider.CompareTag(tagRemote))
             {
-                survoleInteractable = true;
-
-                if (Input.GetMouseButtonDown(0))
+                RemoteController remote = hit.collider.GetComponent<RemoteController>();
+                
+                // Si la télécommande existe ET qu'elle n'est pas en train de charger une image
+                if (remote != null && !remote.IsTransitioning)
                 {
-                    RemoteController remote = hit.collider.GetComponent<RemoteController>();
-                    if (remote != null)
+                    survoleInteractable = true;
+
+                    if (Input.GetMouseButtonDown(0))
                     {
                         remote.ToggleStatus();
                     }

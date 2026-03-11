@@ -41,6 +41,9 @@ public class RemoteController : MonoBehaviour
     private Coroutine loopSoundCoroutine;
     private bool isTransitioning = false; // Empêche d'éteindre pendant l'animation
 
+    // Propriété publique pour savoir si une transition est en cours (utile pour PlayerInteraction.cs)
+    public bool IsTransitioning { get { return isTransitioning; } }
+
     void Start()
     {
         // Par défaut la télécommande est éteinte
