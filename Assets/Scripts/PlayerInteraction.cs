@@ -10,6 +10,8 @@ public class PlayerInteraction : MonoBehaviour
     public string tagChaise = "SchoolChair";
     [Tooltip("Le tag des objets interactifs comme le tiroir.")]
     public string tagTiroir = "Drawer";
+    [Tooltip("Le tag de la télécommande interactive.")]
+    public string tagRemote = "RemoteController";
 
     [Header("UI - Pointeur / Curseur")]
     [Tooltip("L'image UI du réticule au centre de l'écran (ex: le point rouge).")]
@@ -71,6 +73,20 @@ public class PlayerInteraction : MonoBehaviour
                     if (tiroir != null)
                     {
                         tiroir.Toggle();
+                    }
+                }
+            }
+            // Vérifier si l'objet regardé est la télécommande
+            else if (hit.collider.CompareTag(tagRemote))
+            {
+                survoleInteractable = true;
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    RemoteController remote = hit.collider.GetComponent<RemoteController>();
+                    if (remote != null)
+                    {
+                        remote.ToggleStatus();
                     }
                 }
             }

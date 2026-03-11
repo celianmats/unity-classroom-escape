@@ -6,6 +6,7 @@ TagManager:
   tags:
   - SchoolChair
   - Drawer
+  - RemoteController
   layers:
   - Default
   - TransparentFX
