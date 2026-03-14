@@ -12,6 +12,8 @@ public class PlayerInteraction : MonoBehaviour
     public string tagTiroir = "Drawer";
     [Tooltip("Le tag de la télécommande interactive.")]
     public string tagRemote = "RemoteController";
+    [Tooltip("Le tag de l'interrupteur.")]
+    public string tagLightSwitch = "LightSwitch";
 
     [Header("UI - Pointeur / Curseur")]
     [Tooltip("L'image UI du réticule au centre de l'écran (ex: le point rouge).")]
@@ -89,6 +91,20 @@ public class PlayerInteraction : MonoBehaviour
                     if (Input.GetMouseButtonDown(0))
                     {
                         remote.ToggleStatus();
+                    }
+                }
+            }
+            // Vérifier si l'objet regardé est l'interrupteur
+            else if (hit.collider.CompareTag(tagLightSwitch))
+            {
+                survoleInteractable = true;
+
+                if (Input.GetMouseButtonDown(0))
+                {
+                    LightSwitchToggle interrupteur = hit.collider.GetComponent<LightSwitchToggle>();
+                    if (interrupteur != null)
+                    {
+                        interrupteur.Toggle();
                     }
                 }
             }
