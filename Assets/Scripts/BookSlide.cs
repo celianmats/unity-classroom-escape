@@ -19,6 +19,9 @@ public class BookSlide : MonoBehaviour
     private bool estActive = false;
     private bool isSliding = false;
 
+    // Flag global accessible depuis d'autres scripts
+    public static bool bookSlideActive = false;
+
     void Start()
     {
         positionOrigine = transform.localPosition;
@@ -36,6 +39,7 @@ public class BookSlide : MonoBehaviour
         if (!estActive)
         {
             estActive = true;
+            bookSlideActive = true; // Le livre a glissé au moins une fois
 
             if (audioSource != null && slideSound != null)
             {

@@ -11,6 +11,7 @@ TagManager:
   - Groenland
   - Book
   - Key
+  - Door
   layers:
   - Default
   - TransparentFX

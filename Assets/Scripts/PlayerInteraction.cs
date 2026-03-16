@@ -16,6 +16,10 @@ public class PlayerInteraction : MonoBehaviour
     public string tagLightSwitch = "LightSwitch";
     [Tooltip("Le tag de l'objet Groenland.")]
     public string tagGroenland = "Groenland";
+    [Tooltip("Le tag de la clé à ramasser.")]
+    public string tagKey = "Key";
+    [Tooltip("Le tag de la porte finale.")]
+    public string tagDoor = "Door";
 
     [Header("UI - Pointeur / Curseur")]
     [Tooltip("L'image UI du réticule au centre de l'écran (ex: le point rouge).")]
@@ -30,10 +34,8 @@ public class PlayerInteraction : MonoBehaviour
 
     void Start()
     {
-        // On récupère la caméra principale (généralement attachée au joueur)
         cameraJoueur = Camera.main;
 
-        // On initialise la couleur par défaut
         if (crosshair != null)
         {
             crosshair.color = couleurNormale;
@@ -42,104 +44,106 @@ public class PlayerInteraction : MonoBehaviour
 
     void Update()
     {
-        //Raycast depuis le centre de l'écran
         Ray ray = cameraJoueur.ViewportPointToRay(new Vector3(0.5f, 0.5f, 0));
         RaycastHit hit;
 
         bool survoleInteractable = false;
 
-        // On projette un rayon pour voir ce que le joueur regarde
         if (Physics.Raycast(ray, out hit, distanceInteraction))
         {
-            // Vérifier si l'objet regardé est une chaise
+            // Chaise
             if (hit.collider.CompareTag(tagChaise))
             {
                 survoleInteractable = true;
-
-                // Vérifier le clic gauche de la souris (Bouton Fire1 / 0)
                 if (Input.GetMouseButtonDown(0))
                 {
-                    // L'objet doit avoir le script ChairToggle attaché
                     ChairToggle chaise = hit.collider.GetComponent<ChairToggle>();
-                    if (chaise != null)
-                    {
-                        chaise.Toggle(); // Ouvre ou ferme la chaise
-                    }
+                    if (chaise != null) chaise.Toggle();
                 }
             }
-            // Vérifier si l'objet regardé est un tiroir
+            // Tiroir
             else if (hit.collider.CompareTag(tagTiroir))
             {
                 survoleInteractable = true;
-
                 if (Input.GetMouseButtonDown(0))
                 {
                     DrawerToggle tiroir = hit.collider.GetComponent<DrawerToggle>();
-                    if (tiroir != null)
-                    {
-                        tiroir.Toggle();
-                    }
+                    if (tiroir != null) tiroir.Toggle();
                 }
             }
-            // Vérifier si l'objet regardé est la télécommande
+            // Télécommande
             else if (hit.collider.CompareTag(tagRemote))
             {
                 RemoteController remote = hit.collider.GetComponent<RemoteController>();
-                
-                // Si la télécommande existe ET qu'elle n'est pas en train de charger une image
                 if (remote != null && !remote.IsTransitioning)
                 {
                     survoleInteractable = true;
-
                     if (Input.GetMouseButtonDown(0))
                     {
                         remote.ToggleStatus();
                     }
                 }
             }
-            // Vérifier si l'objet regardé est l'interrupteur
+            // Interrupteur
             else if (hit.collider.CompareTag(tagLightSwitch))
             {
                 survoleInteractable = true;
-
                 if (Input.GetMouseButtonDown(0))
                 {
                     LightSwitchToggle interrupteur = hit.collider.GetComponent<LightSwitchToggle>();
-                    if (interrupteur != null)
-                    {
-                        interrupteur.Toggle();
-                    }
+                    if (interrupteur != null) interrupteur.Toggle();
                 }
             }
-            // Vérifier si l'objet regardé est l'objet Groenland
+            // Groenland
             else if (hit.collider.CompareTag(tagGroenland))
             {
-                // L'interaction n'est disponible que si le pattern a été réussi ET qu'elle n'a pas déjà été utilisée
                 if (ChairPatternManager.patternReussiUneFois && !groenlandActive)
                 {
                     survoleInteractable = true;
-
                     if (Input.GetMouseButtonDown(0))
                     {
                         GameObject book = GameObject.FindWithTag("Book");
                         if (book != null)
                         {
                             BookSlide bookSlide = book.GetComponent<BookSlide>();
-                            if (bookSlide != null)
-                            {
-                                bookSlide.Activer();
-                            }
+                            if (bookSlide != null) bookSlide.Activer();
                         }
-                        groenlandActive = true; // Désactive définitivement l'interaction
+                        groenlandActive = true;
+                    }
+                }
+            }
+            // Clé (disponible uniquement si le livre a glissé)
+            else if (hit.collider.CompareTag(tagKey))
+            {
+                if (BookSlide.bookSlideActive)
+                {
+                    survoleInteractable = true;
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        KeyPickup key = hit.collider.GetComponent<KeyPickup>();
+                        if (key != null) key.Ramasser();
+                    }
+                }
+            }
+            // Porte finale (disponible uniquement si la clé a été ramassée)
+            else if (hit.collider.CompareTag(tagDoor))
+            {
+                if (KeyPickup.keyCollected)
+                {
+                    survoleInteractable = true;
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        if (VictoryScreen.Instance != null)
+                        {
+                            VictoryScreen.Instance.AfficherVictoire();
+                        }
                     }
                 }
             }
         }
 
-        // Mettre à jour la couleur du pointeur
         if (crosshair != null)
         {
-            // Si on survole un interactable, on met la couleurSurvol, sinon la couleurNormale
             crosshair.color = survoleInteractable ? couleurSurvol : couleurNormale;
         }
     }
