@@ -14,6 +14,8 @@ public class PlayerInteraction : MonoBehaviour
     public string tagRemote = "RemoteController";
     [Tooltip("Le tag de l'interrupteur.")]
     public string tagLightSwitch = "LightSwitch";
+    [Tooltip("Le tag de l'objet Groenland.")]
+    public string tagGroenland = "Groenland";
 
     [Header("UI - Pointeur / Curseur")]
     [Tooltip("L'image UI du réticule au centre de l'écran (ex: le point rouge).")]
@@ -105,6 +107,28 @@ public class PlayerInteraction : MonoBehaviour
                     if (interrupteur != null)
                     {
                         interrupteur.Toggle();
+                    }
+                }
+            }
+            // Vérifier si l'objet regardé est l'objet Groenland
+            else if (hit.collider.CompareTag(tagGroenland))
+            {
+                // L'interaction n'est disponible que si le son de réussite des chaises a été joué au moins une fois
+                if (ChairPatternManager.patternReussiUneFois)
+                {
+                    survoleInteractable = true;
+
+                    if (Input.GetMouseButtonDown(0))
+                    {
+                        GameObject book = GameObject.FindWithTag("Book");
+                        if (book != null)
+                        {
+                            BookSlide bookSlide = book.GetComponent<BookSlide>();
+                            if (bookSlide != null)
+                            {
+                                bookSlide.Activer();
+                            }
+                        }
                     }
                 }
             }

@@ -30,7 +30,9 @@ public class RemoteController : MonoBehaviour
 
     [Header("Références d'affichage")]
     [Tooltip("L'objet qui affichera l'image (doit posséder un MeshRenderer et un matériel avec un Shader transparent)")]
-    public MeshRenderer targetRenderer; 
+    public MeshRenderer targetRenderer;
+    [Tooltip("Lumière à allumer/éteindre en sync avec le projecteur (ex: une Spot Light ou Point Light).")]
+    public Light lumiereProjecteur;
     
     [Header("Images (Textures)")]
     public Texture2D imageTemporaire;
@@ -58,6 +60,12 @@ public class RemoteController : MonoBehaviour
 
         // Par défaut la télécommande est éteinte
         isOn = false;
+
+        // S'assurer que la lumière du projecteur est bien éteinte au lancement
+        if (lumiereProjecteur != null)
+        {
+            lumiereProjecteur.enabled = false;
+        }
         
         if (loopSoundAudioSource != null)
         {
@@ -86,6 +94,12 @@ public class RemoteController : MonoBehaviour
         if (isOn)
         {
             hasBeenTurnedOnAtLeastOnce = true;
+        }
+
+        // Mettre à jour la lumière
+        if (lumiereProjecteur != null)
+        {
+            lumiereProjecteur.enabled = isOn;
         }
 
         // Jouer le son correspondant au nouveau statut (Bip)

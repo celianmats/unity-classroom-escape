@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 public class ChairPatternManager : MonoBehaviour
 {
-    // C'est un Singleton, pour y accéder facilement depuis n'importe où
     public static ChairPatternManager Instance;
 
     [System.Serializable]
@@ -27,6 +26,9 @@ public class ChairPatternManager : MonoBehaviour
     private Dictionary<int, bool> etatActuelChaises = new Dictionary<int, bool>();
     private bool canPlaySuccessSound = true; // Cooldown pour éviter de spammer le son
     private Coroutine successSoundCoroutine;
+    
+    // Flag statique accessible depuis d'autres scripts
+    public static bool patternReussiUneFois = false;
 
     private void Awake()
     {
@@ -43,6 +45,9 @@ public class ChairPatternManager : MonoBehaviour
 
     private void Start()
     {
+        // Réinitialiser le flag au lancement (sécurité éditeur Unity)
+        patternReussiUneFois = false;
+
         // Initialiser toutes les chaises à l'état "fermé" par défaut au début
         foreach (var chairData in patternAttendu)
         {
@@ -115,6 +120,7 @@ public class ChairPatternManager : MonoBehaviour
         }
 
         // On joue le son de réussite
+        patternReussiUneFois = true; // On mémorise que le pattern a été réussi au moins une fois
         sonReussite.Play();
 
         // On attend que le son se termine complètement pour servir de cooldown
