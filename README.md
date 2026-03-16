@@ -133,4 +133,4 @@ Affiche le panneau de fin de jeu, joue un son de victoire, libère le curseur et
 
 ## 👤 Auteur
 
-Célian Mats
+Célian Mats et Dalil Hammachi
