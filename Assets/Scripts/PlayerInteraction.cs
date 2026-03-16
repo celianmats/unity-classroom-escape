@@ -26,6 +26,7 @@ public class PlayerInteraction : MonoBehaviour
     public Color couleurSurvol = Color.green;
 
     private Camera cameraJoueur;
+    private bool groenlandActive = false; // Interaction Groenland utilisée une seule fois
 
     void Start()
     {
@@ -113,8 +114,8 @@ public class PlayerInteraction : MonoBehaviour
             // Vérifier si l'objet regardé est l'objet Groenland
             else if (hit.collider.CompareTag(tagGroenland))
             {
-                // L'interaction n'est disponible que si le son de réussite des chaises a été joué au moins une fois
-                if (ChairPatternManager.patternReussiUneFois)
+                // L'interaction n'est disponible que si le pattern a été réussi ET qu'elle n'a pas déjà été utilisée
+                if (ChairPatternManager.patternReussiUneFois && !groenlandActive)
                 {
                     survoleInteractable = true;
 
@@ -129,6 +130,7 @@ public class PlayerInteraction : MonoBehaviour
                                 bookSlide.Activer();
                             }
                         }
+                        groenlandActive = true; // Désactive définitivement l'interaction
                     }
                 }
             }
