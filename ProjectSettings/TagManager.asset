@@ -10,6 +10,7 @@ TagManager:
   - LightSwitch
   - Groenland
   - Book
+  - Key
   layers:
   - Default
   - TransparentFX
