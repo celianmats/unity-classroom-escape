@@ -10,6 +10,10 @@ public class BookSlide : MonoBehaviour
     [Tooltip("Durée du glissement avant de laisser le Rigidbody prendre le relais (en secondes).")]
     public float dureGlissement = 0.5f;
 
+    [Header("Audio")]
+    public AudioSource audioSource;
+    public AudioClip slideSound;
+
     private Vector3 positionOrigine;
     private Vector3 positionCible;
     private bool estActive = false;
@@ -32,6 +36,12 @@ public class BookSlide : MonoBehaviour
         if (!estActive)
         {
             estActive = true;
+
+            if (audioSource != null && slideSound != null)
+            {
+                audioSource.PlayOneShot(slideSound);
+            }
+
             StartCoroutine(SlideEtStop());
         }
     }
